@@ -15,6 +15,8 @@ module Poseidon
     attr_reader :offset
 
     attr_reader :topic
+    
+    attr_reader :connection
 
     # Returns a consumer pointing at the lead broker for the partition.
     #
@@ -74,7 +76,7 @@ module Poseidon
 
       handle_options(options)
 
-      @connection = Connection.new(host, port, client_id, @socket_timeout_ms)
+      @connection = Connection.new(host, port, client_id, @socket_timeout_ms) if @connection.nil?
       @topic = topic
       @partition = partition
       if Symbol === offset
@@ -155,6 +157,7 @@ module Poseidon
       @min_bytes         = options.delete(:min_bytes) || 1
       @max_wait_ms       = options.delete(:max_wait_ms) || 10_000
       @socket_timeout_ms = options.delete(:socket_timeout_ms) || @max_wait_ms + 10_000
+      @connection        = options.delete(:connection) || nil
 
       if @socket_timeout_ms < @max_wait_ms
         raise ArgumentError, "Setting socket_timeout_ms should be higher than max_wait_ms"
